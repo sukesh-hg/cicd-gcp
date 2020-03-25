@@ -1,16 +1,27 @@
+require('@google-cloud/trace-agent').start();
 const express = require('express');
 const app = express();
 const path = require('path');
-const router = express.Router();
+const got = require('got');
+const DISCOVERY_URL = 'https://www.googleapis.com/discovery/v1/apis';
 
-router.get('/', (req, res) => {
+app.get('/', async (req, res) => {
   console.log('App received a request.');
-  res.sendFile(path.join(__dirname+'/templates/index.html'));
-  //__dirname : It will resolve to your project folder.
+  try {
+    res
+      .status(200)
+      .sendFile(path.join(__dirname+'/templates/index.html'));
+      //__dirname : It will resolve to your project folder.
+  }
+  catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .end();
+  }
 });
 
 const port = process.env.PORT || 8080;
-app.use('/', router);
 app.listen(port, () => {
   console.log('App listening on port', port);
 });
