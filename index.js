@@ -1,20 +1,25 @@
 require('@google-cloud/trace-agent').start();
+const {Logging} = require('@google-cloud/logging');
 const express = require('express');
 const app = express();
 const path = require('path');
 const got = require('got');
-const DISCOVERY_URL = 'https://www.googleapis.com/discovery/v1/apis';
 
 app.get('/', async (req, res) => {
-  console.log('App received a request.');
+  projectId = 'niveus-research-project-273009', // Google Cloud Platform project ID
+  logName = 'demo' // The name of the log to write to
+  const logging = new Logging({projectId});
+  const log = logging.log(logName);
+  await log.write(log.entry({resource: {type: 'global'},severity: 'INFO'}, 'App recieved a request'));
   try {
     res
-      .status(200)
-      .sendFile(path.join(__dirname+'/templates/index.html'));
+      .sendFile(path.join(__dirname+'/templates/index.html'))
+      .status(200);
       //__dirname : It will resolve to your project folder.
+    await log.write(log.entry({resource: {type: 'global'},severity: 'INFO'}, 'Successfully rendered web page'));
   }
   catch (err) {
-    console.error(err);
+    await log.write(log.entry({resource: {type: 'global'},severity: 'ERROR'},'Error'+err));
     res
       .status(500)
       .end();
