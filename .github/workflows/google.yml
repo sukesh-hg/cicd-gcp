@@ -25,6 +25,7 @@ env:
   IMAGE: sample-app
   REGISTRY_HOSTNAME: gcr.io
   DEPLOYMENT_NAME: sample-app
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 jobs:
   setup-build-publish-deploy:
@@ -74,3 +75,11 @@ jobs:
         ./kustomize build . | kubectl apply -f -
         kubectl rollout status deployment/$DEPLOYMENT_NAME
         kubectl get services -o wide
+        
+    # Slack notification
+    - uses: act10ns/slack@v1
+      with:
+        status: ${{ job.status }}
+        #steps: ${{ toJson(steps) }}
+        #channel: '#workflows'
+      if: always()
