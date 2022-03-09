@@ -1,4 +1,3 @@
-require('@google-cloud/trace-agent').start();
 const {Logging} = require('@google-cloud/logging');
 const express = require('express');
 const app = express();
